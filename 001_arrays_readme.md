@@ -18,3 +18,16 @@
 | Insertion | N/A | O(n) |
 | Appending | N/A | O(1) |
 | Deletion | N/A | O(n) |
+
+
+## Dynamic Array
+- Can grow and shrink in size.
+
+## How do we implement a dynamic array?
+### One way is to use static array.
+- Create a static array with an initial capacity.
+- Add elements to the static array.
+- Keep track of the number of elements
+- If adding element exceeds the cpability
+- Then create a new static array with twice the capacity
+- copy the original elements into it. 
