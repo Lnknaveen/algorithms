@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class StaticArrayTest {
+public class StaticArrayTests {
 
     private void shouldTestStaticArrayWithParams(int[] numbers, int valueToFind, boolean expected) {
         StaticArray array = new StaticArray(numbers);

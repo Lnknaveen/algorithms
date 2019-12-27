@@ -45,7 +45,7 @@ Head       Node           Pointer        Tail
 ---
 
 ### Complexity
-| | Sinlgy | Doubly |
+| | Singly | Doubly |
 | - | - | - |
 | Search | O(n) | O(n) |
 | Insert at head | O(1) | O(1) |

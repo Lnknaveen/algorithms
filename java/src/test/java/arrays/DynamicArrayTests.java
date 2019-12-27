@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class DynamicArrayTest {
+public class DynamicArrayTests {
 
     @Test
     public void shouldValidateArray() {
