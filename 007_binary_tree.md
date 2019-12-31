@@ -78,7 +78,6 @@
 | - | - | - |
 | Insert | O(log(n)) | O(n) |
 | Delete | O(log(n)) | O(n) |
-| Remove | O(log(n)) | O(n) |
 | Search | O(log(n)) | O(n) |
 
 ### Inserting elements to a BST

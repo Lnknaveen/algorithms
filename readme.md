@@ -1,3 +1,5 @@
+Reference: https://github.com/williamfiset/data-structures 
+
 ## What is DS?
 - A data structure is a way of organizing data so that it can be used effectively.
 
