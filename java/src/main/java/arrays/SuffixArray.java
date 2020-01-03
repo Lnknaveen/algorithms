@@ -1,165 +1,122 @@
 package arrays;
 
+import java.util.Arrays;
+
 public class SuffixArray {
+    final int size;
 
-    int alphabetSize = 256;
-    int[] sa2, rank, tmp, c;
+    String text;
+    int[] suffixArray;
 
-    protected final int N;
-
-    protected int[] T;
-
-    protected int[] sa;
-
-    protected int[] lcp;
+    int[] lcp;
 
     private boolean constructedSa = false;
     private boolean constructedLcpArray = false;
+    Object[][] sa;
 
     public SuffixArray(String text) {
         if (text == null)
             throw new IllegalArgumentException("Text cannot be null.");
 
-        int[] textArray = toIntArray(text);
-        this.T = textArray;
-        this.N = textArray.length;
+        this.text = text;
+        size = text.length();
+
+        sa = new Object[size][2];
+
+        suffixArray = new int[size];
+        lcp = new int[size];
     }
 
-    public int getTextLength() {
-        return T.length;
-    }
-
-    // Returns the suffix array.
-    public int[] getSa() {
+    public int[] getSuffixArray() {
         buildSuffixArray();
-        return sa;
+        return suffixArray;
     }
 
-    // Returns the LCP array.
     public int[] getLcpArray() {
         buildLcpArray();
         return lcp;
     }
 
-    // Builds the suffix array by calling the construct() method.
-    protected void buildSuffixArray() {
+    void buildSuffixArray() {
         if (constructedSa)
             return;
-        construct();
+
+        constructSimple();
+
         constructedSa = true;
     }
 
-    // Builds the LCP array by first creating the SA and then running the kasai
-    // algorithm.
-    protected void buildLcpArray() {
+    private void constructSimple() {
+        String prev = "";
+        for (int i = size - 1; i >= 0; i--) {
+            String temp = prev;
+            sa[i][0] = i;
+            sa[i][1] = prev = String.format("%s%s", text.charAt(i), temp);
+        }
+
+        Arrays.sort(sa, (a, b) -> a[1].toString().compareTo(b[1].toString()));
+
+        for (int i = 0; i < sa.length; i++) {
+            suffixArray[i] = (int) sa[i][0];
+        }
+    }
+
+    void buildLcpArray() {
         if (constructedLcpArray)
             return;
+
         buildSuffixArray();
         kasai();
+
         constructedLcpArray = true;
     }
 
-    protected static int[] toIntArray(String s) {
-        if (s == null)
-            return null;
-        int[] t = new int[s.length()];
-        for (int i = 0; i < s.length(); i++)
-            t[i] = s.charAt(i);
-        return t;
-    }
-
     private void kasai() {
-        lcp = new int[N];
-        int[] inv = new int[N];
-        for (int i = 0; i < N; i++)
-            inv[sa[i]] = i;
-        for (int i = 0, len = 0; i < N; i++) {
-            if (inv[i] > 0) {
-                int k = sa[inv[i] - 1];
-                while ((i + len < N) && (k + len < N) && T[i + len] == T[k + len])
+        int[] textArray = text.chars().toArray();
+        int[] invertedIndexArray = new int[size];
+
+        String res = "";
+        for (int i = 0; i < size; i++) {
+            res += suffixArray[i] + "=" + i + "=" + sa[i][1].toString() + "    ";
+            invertedIndexArray[suffixArray[i]] = i;
+        }
+        System.out.println(res);
+
+        res = "";
+        for (int i = 0, len = 0; i < size; i++) {
+            if (invertedIndexArray[i] > 0) {
+                int k = suffixArray[invertedIndexArray[i] - 1];
+
+                while ((i + len < size) && (k + len < size) && textArray[i + len] == textArray[k + len])
                     len++;
-                lcp[inv[i]] = len;
+                    
+                System.out.println(sa[invertedIndexArray[i] - 1][1].toString() + "    "
+                        + sa[invertedIndexArray[i]][1].toString() + "=" + len);
+                lcp[invertedIndexArray[i]] = len;
+
                 if (len > 0)
                     len--;
             }
         }
     }
 
-    protected void construct() {
-        sa = new int[N];
-        sa2 = new int[N];
-        rank = new int[N];
-        c = new int[Math.max(alphabetSize, N)];
-
-        int i, p, r;
-        for (i = 0; i < N; ++i) {
-            c[rank[i] = T[i]]++;
-        }
-
-        for (i = 1; i < alphabetSize; ++i) {
-            c[i] += c[i - 1];
-        }
-
-        for (i = N - 1; i >= 0; --i) {
-            sa[--c[T[i]]] = i;
-        }
-
-        for (p = 1; p < N; p <<= 1) {
-            for (r = 0, i = N - p; i < N; ++i) {
-                sa2[r++] = i;
-            }
-
-            for (i = 0; i < N; ++i) {
-                if (sa[i] >= p)
-                    sa2[r++] = sa[i] - p;
-            }
-
-            java.util.Arrays.fill(c, 0, alphabetSize, 0);
-
-            for (i = 0; i < N; ++i) {
-                c[rank[i]]++;
-            }
-
-            for (i = 1; i < alphabetSize; ++i) {
-                c[i] += c[i - 1];
-            }
-
-            for (i = N - 1; i >= 0; --i) {
-                sa[--c[rank[sa2[i]]]] = sa2[i];
-            }
-
-            for (sa2[sa[0]] = r = 0, i = 1; i < N; ++i) {
-                if (!(rank[sa[i - 1]] == rank[sa[i]] && sa[i - 1] + p < N && sa[i] + p < N
-                        && rank[sa[i - 1] + p] == rank[sa[i] + p]))
-                    r++;
-                sa2[sa[i]] = r;
-            }
-
-            tmp = rank;
-            rank = sa2;
-            sa2 = tmp;
-
-            if (r == N - 1)
-                break;
-
-            alphabetSize = r + 1;
-        }
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("-----i-----SA-----LCP---Suffix\n");
-
-        for (int i = 0; i < N; i++) {
-            int suffixLen = N - sa[i];
-            char[] suffixArray = new char[suffixLen];
-            for (int j = sa[i], k = 0; j < N; j++, k++)
-                suffixArray[k] = (char) T[j];
-            String suffix = new String(suffixArray);
-            String formattedStr = String.format("% 6d % 6d % 6d\t%s\n", i, sa[i], lcp[i], suffix);
-            sb.append(formattedStr);
+        StringBuilder sb = new StringBuilder("-----i-----SA-----LCP---Suffix\n");
+        for (int i = 0; i < size; i++) {
+            sb.append(String.format("% 6d % 6d % 6d\t%s\n", i, suffixArray[i], lcp[i], text.substring(suffixArray[i])));
         }
         return sb.toString();
     }
+    // i--SA--LCP--Suffix
+    // 0--9---0----A
+    // 1--8---1----AA
+    // 2--5---2----AABAA
+    // 3--6---1----ABAA
+    // 4--3---4----ABAABAA
+    // 5--0---2----ABBABAABAA
+    // 6--7---0----BAA
+    // 7--4---3----BAABAA
+    // 8--2---2----BABAABAA
+    // 9--1---1----BBABAABAA
 }

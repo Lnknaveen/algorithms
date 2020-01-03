@@ -16,9 +16,9 @@ public class SuffixArrayTests {
 
         SuffixArray sa = new SuffixArray(text);
 
-        int length = sa.getSa().length;
+        int length = sa.getSuffixArray().length;
         int[] lcpArray = sa.getLcpArray();
-        
+
         for (int i = 0; i < length; i++) {
             assertEquals(lcpValues[i], lcpArray[i]);
         }
@@ -26,3 +26,4 @@ public class SuffixArrayTests {
         System.out.println(sa);
     }
 }
+
